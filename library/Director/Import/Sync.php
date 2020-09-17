@@ -507,6 +507,17 @@ class Sync
                     }
                 } elseif ($prop === 'groups') {
                     if ($val !== null) {
+                        $object->groups()->operator("assign");
+                        $object->groups()->add($val);
+                    }
+                } elseif ($prop === 'groupsadd') {
+                    if ($val !== null) {
+                        $object->groups()->operator("add");
+                        $object->groups()->add($val);
+                    }
+                } elseif ($prop === 'groupsremove') {
+                    if ($val !== null) {
+                        $object->groups()->operator("remove");
                         $object->groups()->add($val);
                     }
                 } elseif (substr($prop, 0, 5) === 'vars.') {

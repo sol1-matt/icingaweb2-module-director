@@ -24,6 +24,8 @@ class IcingaObjectGroups implements Iterator, Countable, IcingaConfigRenderer
 
     private $position = 0;
 
+    private $operator = "add";
+
     protected $idx = array();
 
     public function __construct(IcingaObject $object)
@@ -75,6 +77,12 @@ class IcingaObjectGroups implements Iterator, Countable, IcingaConfigRenderer
     {
         return array_key_exists($this->position, $this->idx);
     }
+
+    public function operator($val)
+    {
+        $this->operator = $val;
+    }
+
 
     public function get($key)
     {
@@ -130,7 +138,7 @@ class IcingaObjectGroups implements Iterator, Countable, IcingaConfigRenderer
             $this->refreshIndex();
             return $this;
         }
-
+	
         return $this->add($group);
     }
 
@@ -356,8 +364,13 @@ class IcingaObjectGroups implements Iterator, Countable, IcingaConfigRenderer
         if (empty($groups)) {
             return '';
         }
-
-        return c::renderKeyValue('groups', c::renderArray($groups));
+	if ($this->operator === "add") {
+            return c::renderKeyOperatorValue('groups', "+=", c::renderArray($groups));
+        } elseif ($this->operator === "remove") {
+            return c::renderKeyOperatorValue('groups', "-=", c::renderArray($groups));
+        } else {	
+            return c::renderKeyValue('groups', c::renderArray($groups));
+	}
     }
 
     public function toLegacyConfigString($additionalGroups = array())
@@ -369,8 +382,15 @@ class IcingaObjectGroups implements Iterator, Countable, IcingaConfigRenderer
             return '';
         }
 
-        $type = $this->object->getLegacyObjectType();
-        return c1::renderKeyValue($type.'groups', c1::renderArray($groups));
+	$type = $this->object->getLegacyObjectType();
+
+	if ($this->operator === "add") {
+            return c::renderKeyOperatorValue('groups', "+=", c::renderArray($groups));
+        } elseif ($this->operator == "remove") {
+            return c::renderKeyOperatorValue('groups', "-=", c::renderArray($groups));
+        } else {	
+            return c1::renderKeyValue($type.'groups', c1::renderArray($groups));
+	}
     }
 
     public function __toString()
